@@ -15,7 +15,7 @@ func main() {
 	fmt.Printf("main: %+v\n", *schemaStore.GetSchema())
 
 	// Obtain the schemas
-	schemas := m.GetSchemaStore().GetSchemas()
+	schemas := schemaStore.GetSchemas()
 	fmt.Printf("\nSchemas: %+v\n", schemas)
 
 	// Obtain the mapped structures

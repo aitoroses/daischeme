@@ -1,18 +1,19 @@
 package schemamapper
 
 import (
+	"github.com/daischio/daischeme/codemodel/util"
 	parser "github.com/daischio/daischeme/codemodel/schemaparser"
 	store "github.com/daischio/daischeme/codemodel/schemastore"
 	"fmt"
-	"unicode"
 )
 
 type SchemaMapper struct {
+	ModelName string
 	schema *parser.Scheme
 }
 
-func New(p *parser.Scheme) *SchemaMapper{
-	sm := &SchemaMapper{p}
+func New(modelName string, p *parser.Scheme) *SchemaMapper{
+	sm := &SchemaMapper{modelName, p}
 	return sm
 }
 
@@ -38,7 +39,7 @@ func (sm *SchemaMapper) GetMappedStructs() []*Struct{
 }
 
 func transformSchemaToStruct(sm *SchemaMapper, c chan *Struct, done chan bool) {
-	var schemas []*parser.Scheme = store.New(sm.schema).GetSchemas()
+	var schemas []*store.NamedSchema = store.New(sm.ModelName, sm.schema).GetSchemas()
 	for _, schema := range schemas {
 		s := new(Struct)
 		// Map schema properties to fields
@@ -46,25 +47,17 @@ func transformSchemaToStruct(sm *SchemaMapper, c chan *Struct, done chan bool) {
 			continue
 		}
 
-		// Make first Cap
-		capitalize := func(s string) string {
-			a := []rune(s)
-			a[0] = unicode.ToUpper(a[0])
-			s = string(a)
-			return s
-		}
-
 		// Walk over properties
 		for k, v := range schema.Properties {
 			f := new(Field)
-			f.Name = capitalize(k)
+			f.Name = util.Capitalize(k)
 			f.Tag = fmt.Sprintf(`json:"%s"`, k)
 			f.Type = v.Type
 			s.Fields = append(s.Fields, f)
 		}
 
-		//todo: Add a name for the struct
-		s.Name = "DummyName"
+		//Add a name for the struct from the NamedSchema
+		s.Name = schema.Name
 
 		//@todo: Use the correct types
 		// Add types
@@ -75,8 +68,11 @@ func transformSchemaToStruct(sm *SchemaMapper, c chan *Struct, done chan bool) {
 	done <- true
 }
 
-/* Structs */
+// ------------------------
+// | Structs              |
+// ------------------------
 
+// Struct file holds a schema as a Struct representation
 type Struct struct {
 	Name string
 	Fields []*Field
@@ -88,19 +84,22 @@ type Field struct {
 	Type string
 }
 
+// Write the struct header
 func (s *Struct) head() string {
 	return fmt.Sprintf("type %s struct {\n", s.Name)
 }
 
+// Write a field
 func (s *Struct) field(i int) string {
 	return fmt.Sprintf("\t%s %s \t\t\t`%s`\n", s.Fields[i].Name, s.Fields[i].Type, s.Fields[i].Tag)
 }
 
+// Write the end of file
 func (s *Struct) tail() string {
 	return fmt.Sprint("\n}")
 }
 
-
+// This function converts the struct to written code
 func (s *Struct) Code() string {
 	res := ""
 	res += s.head()

@@ -14,13 +14,13 @@ type CodeModel struct {
 
 /* Return the SchemaStore */
 func (c *CodeModel) GetSchemaStore() *store.SchemaStore {
-	s := store.New(c.Scheme)
+	s := store.New(c.ModelName, c.Scheme)
 	return s
 }
 
 /* Return the SchemaMapper */
 func (c *CodeModel) GetSchemaMapper() *mapper.SchemaMapper {
-	mapper := mapper.New(c.Scheme)
+	mapper := mapper.New(c.ModelName ,c.Scheme)
 	return mapper
 }
 
