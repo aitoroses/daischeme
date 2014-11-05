@@ -96,7 +96,7 @@ func (s *Struct) field(i int) string {
 
 // Write the end of file
 func (s *Struct) tail() string {
-	return fmt.Sprint("\n}")
+	return fmt.Sprint("\n}\n")
 }
 
 // This function converts the struct to written code
