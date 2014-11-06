@@ -19,27 +19,17 @@ func New(modelName string, p *parser.Scheme) *SchemaMapper{
 
 func (sm *SchemaMapper) GetMappedStructs() []*Struct{
 
-  	structs := make([]*Struct, 0)
-
-	// Create channels
-	struct_chan := make(chan *Struct)
-	done := make(chan bool)
-
-	// Process Concurrently
-	go transformSchemaToStruct(sm, struct_chan, done)
-
-	select {
-	case s := <- struct_chan:
-		structs = append(structs, s)
-	case <- done:
-		break
-	}
+	structs := transformSchemasToStructs(sm)
 
 	return structs
 }
 
-func transformSchemaToStruct(sm *SchemaMapper, c chan *Struct, done chan bool) {
+func transformSchemasToStructs(sm *SchemaMapper) []*Struct {
+
+	structs := make([]*Struct, 0)
+
 	var schemas []*store.NamedSchema = store.New(sm.ModelName, sm.schema).GetSchemas()
+
 	for _, schema := range schemas {
 		s := new(Struct)
 		// Map schema properties to fields
@@ -59,13 +49,31 @@ func transformSchemaToStruct(sm *SchemaMapper, c chan *Struct, done chan bool) {
 		//Add a name for the struct from the NamedSchema
 		s.Name = schema.Name
 
-		//@todo: Use the correct types
-		// Add types
+		// Map the correct types
+		resolvePropertyTypes(s)
 
-		// Return the struct
-		c <- s
+		// Return the struct through the channel
+		structs = append(structs,s)
 	}
-	done <- true
+	return structs
+}
+
+func resolvePropertyTypes(s *Struct) {
+	// Find the schema that maps each property
+	for _, field := range s.Fields {
+		switch field.Type {
+		case "string":
+			field.Type = "string"
+		case "number":
+			field.Type = "float64"
+		case "boolean":
+			field.Type = "bool"
+		case "object":
+			field.Type = field.Name
+		default:
+			field.Type = "string"
+		}
+	}
 }
 
 // ------------------------

@@ -1,4 +1,9 @@
 {
-  "name": "myname",
-  "firstName": "myFirstname"
+    "name": "myname",
+    "firstName": "myFirstname",
+    "salary": 1200,
+    "nested": {
+        "val1": 12345,
+        "val2": true
+    }
 }

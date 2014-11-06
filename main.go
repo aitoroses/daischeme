@@ -2,36 +2,35 @@ package main
 
 import (
 	"fmt"
-	"github.com/daischio/daischeme/codemodel"
+	//"github.com/daischio/daischeme/codemodel"
+	"io/ioutil"
+	"encoding/json"
 )
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
 func main() {
 	// Generate a model from a schema
-	m := codemodel.New("MyPackage", "MyModel", "./assets/json_example_schema.json")
-	fmt.Printf("%+v\n", m)
+	/*m := codemodel.New("main", "MyModel", "./assets/json_example_schema.json")
 
-	// Generate the SchemaStore from a schema
-	schemaStore := m.GetSchemaStore()
-	fmt.Printf("main: %+v\n", *schemaStore.GetSchema())
+	// Obtain the mapped model code
+	code := m.GetCode()
+	fmt.Println(code)
 
-	// Obtain the schemas
-	schemas := schemaStore.GetSchemas()
-	fmt.Printf("\nSchemas: %+v\n", schemas)
+	// Write model to disk
+	err := ioutil.WriteFile("./model.go", []byte(m.GetCode()), 0644)
+	check(err)*/
 
-	// Obtain the mapped structures
-	structs := m.GetSchemaMapper().GetMappedStructs()
+	// Load the json file
+	f, err := ioutil.ReadFile("./assets/json_example.json")
+	check(err)
 
-	// Print the struct objects
-	fmt.Printf("\nStructs: %+v\n", structs)
-	for _, s := range structs {
-		fmt.Printf("\t -%+v\n", s)
-		fmt.Printf("\t\t Fields: %+v\n", s)
-		for _, f := range s.Fields {
-			fmt.Printf("\t\t\t -%+v\n", f)
-		}
-
-		// Print the struct as code
-		fmt.Printf("\n%s", s.Code())
-	}
-
+	// Parse de json file using the model
+	myModel := &MyModel{}
+	json.Unmarshal([]byte(f), myModel)
+	fmt.Printf("%+v",myModel)
 }

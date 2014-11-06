@@ -2,7 +2,7 @@ package schemastore
 
 import (
 	parser "github.com/daischio/daischeme/codemodel/schemaparser"
-	"fmt"
+	//"fmt"
 	"github.com/daischio/daischeme/codemodel/util"
 )
 
@@ -38,7 +38,7 @@ func (s *SchemaStore) GetSchemas() []*NamedSchema {
 	walk = func(s *parser.Scheme) {
 		// Iterate over properties and get nested schemas
 		for k, v := range s.Properties {
-			fmt.Printf("%v: %+v\n",k,v)
+			//fmt.Printf("%v: %+v\n",k,v)
 			if v.Type == "object" && v.Properties != nil {
 				// append the schema
 				schemas = append(schemas, &NamedSchema{util.Capitalize(k),&v})

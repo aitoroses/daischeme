@@ -14,6 +14,11 @@
 			"id": "http://jsonschema.net/name",
 			"required":false
 		},
+        "salary": {
+            "type":"number",
+            "id": "http://jsonschema.net/salary",
+            "required":false
+        },
         "nested": {
             "type": "object",
             "id": "http://jsonschema.net/nested",
@@ -25,7 +30,7 @@
                     "required":false
                 },
                 "val2": {
-                    "type":"number",
+                    "type":"boolean",
                     "id": "http://jsonschema.net/name",
                     "required":false
                 }
